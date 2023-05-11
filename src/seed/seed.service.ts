@@ -19,19 +19,19 @@ export class SeedService {
     await this.pokemonModel.deleteMany({});
 
     const { data } = await this.axios.get<PokeResponse>(
-      'https://pokeapi.co/api/v2/pokemon?limit=5',
+      'https://pokeapi.co/api/v2/pokemon?limit=650',
     );
 
-    const insertPromisesArray = [];
+    const pokemonToInsert: { name: string; no: number }[] = [];
 
     data.results.forEach(async ({ name, url }) => {
       const segments = url.split('/');
       const no = +segments[segments.length - 2];
 
-      insertPromisesArray.push(this.pokemonModel.create({ name, no }));
+      pokemonToInsert.push({ name, no });
     });
 
-    await Promise.all(insertPromisesArray);
+    await this.pokemonModel.insertMany(pokemonToInsert);
 
     return 'Seed Executed';
   }
